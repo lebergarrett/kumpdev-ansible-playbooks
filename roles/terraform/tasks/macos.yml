@@ -1,0 +1,5 @@
+---
+- community.general.homebrew:
+    name: hashicorp/tap/terraform
+    state: present
+    update_homebrew: yes

@@ -1,0 +1,19 @@
+---
+- name: Install packages
+  apt:
+    pkg:
+    - ansible-lint
+    - curl
+    - fonts-powerline
+    - golang # version 1.13
+    - nodejs
+    - npm
+    - python3
+    - python3-pip
+    - software-properties-common
+    - unzip
+    - vim
+    - yamllint
+    - zsh
+    state: present
+  become: yes

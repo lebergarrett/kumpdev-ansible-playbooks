@@ -1,0 +1,4 @@
+---
+ansible_user: lab
+
+system_timezone: "America/Indiana/Indianapolis"

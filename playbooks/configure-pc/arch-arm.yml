@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+
+  roles:
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenas.kumpdev.com:/mnt/Shared/ShareDataSet
+    - role: install-common-packages
+    - role: git-setup
+      vars:
+        git_user: lebergarrett
+        git_email: lebergarrett@gmail.com
+    - role: prezto
+    - role: dotfiles
+    - role: vimplug
+    - role: sudoers
+    - role: upgrade

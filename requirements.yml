@@ -1,0 +1,15 @@
+# Run command below to install roles/collections listed in this file.
+# ansible-galaxy install -r requirements.yml
+
+roles:
+  - elliotweiser.osx-command-line-tools
+  - geerlingguy.docker
+  - lebergarrett.ansible_awscli
+  - lebergarrett.ansible_common_debian
+  - lebergarrett.ansible_nfs_client
+  - lebergarrett.ansible_nut_client
+
+collections:
+  - ansible.posix
+  - community.general
+  - geerlingguy.mac

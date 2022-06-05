@@ -1,0 +1,21 @@
+---
+- name: Add Github CLI Apt-Keys
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: C99B11DEB97541F0
+  become: yes
+
+- name: Add Github CLI Apt-Repositories
+  apt_repository:
+    repo: deb https://cli.github.com/packages focal main
+    state: present
+    filename: githubcli
+  become: yes
+
+- name: Install Github CLI
+  apt:
+    pkg:
+      - gh
+    state: present
+    update_cache: yes
+  become: yes

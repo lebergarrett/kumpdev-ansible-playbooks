@@ -1,0 +1,28 @@
+---
+- hosts: nfs_server
+  become: true
+
+  tasks:
+    - name: Install dependencies
+      apt:
+        pkg:
+          - nfs-kernel-server
+          - zfsutils-linux
+
+    - name: Enable NFS service
+      service:
+        name: nfs-kernel-server
+        state: started
+        enabled: yes
+
+    #- name: Import ZFS pool
+    # sudo zpool import -d /dev/disk/by-id Shared
+    # sudo zpool import -f Shared
+
+    - name: Create NFS share
+    # sudo zfs set sharenfs=rw,sync,no_root_squash,insecure Shared/ShareDataSet
+      community.general.zfs:
+        name: Shared/ShareDataSet
+        state: present
+        extra_zfs_properties:
+          sharenfs: rw,sync,no_root_squash,insecure

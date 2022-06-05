@@ -1,0 +1,29 @@
+---
+- hosts: plex
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: lebergarrett.ansible_nfs_client
+    - role: upgrade.yml
+  
+  tasks:
+    - name: Add plex apt key
+      ansible.builtin.apt_key:
+        url: https://downloads.plex.tv/plex-keys/PlexSign.key
+        state: present
+    
+    - name: Add plex repository
+      ansible.builtin.apt_repository:
+        repo: deb https://downloads.plex.tv/repo/deb public main
+        state: present
+    
+    - name: Install plex media server
+      apt:
+        name: plexmediaserver
+        update_cache: yes
+    
+    - name: Start and enable plex media server service
+      ansible.builtin.service:
+        name: plexmediaserver
+        state: started
+        enabled: yes

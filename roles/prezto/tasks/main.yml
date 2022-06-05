@@ -1,0 +1,29 @@
+---
+- name: Check if prezto exists
+  stat:
+    path: ~/.zprezto
+  register: prezto_dir
+
+- name: Clone down prezto
+  git:
+    repo: https://github.com/sorin-ionescu/prezto.git
+    dest: ~/.zprezto
+    version: master
+  when: not prezto_dir.stat.exists
+
+- name: Create prezto-zsh config links
+  shell: |
+    setopt EXTENDED_GLOB
+    for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
+      ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
+    done
+  args:
+    executable: /bin/zsh
+  ignore_errors: true
+  when: not prezto_dir.stat.exists
+
+- name: change user shell to zsh
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh
+  become: true

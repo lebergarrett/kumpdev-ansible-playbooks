@@ -1,0 +1,31 @@
+---
+- name: Install dependencies
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Add gcloud CLI Apt signing key to keyring
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    keyring: /usr/share/keyrings/cloud.google.gpg
+  become: true
+
+- name: Add gcloud CLI Repo
+  apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main
+    state: present
+    filename: gcloud-cli
+  become: true
+
+- name: Install gcloud CLI
+  apt:
+    pkg:
+      - google-cloud-sdk
+    state: present
+    update_cache: yes
+  become: true

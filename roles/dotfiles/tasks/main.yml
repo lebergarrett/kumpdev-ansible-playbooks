@@ -1,0 +1,109 @@
+---
+- name: Clone down config files
+  git:
+    repo: 'https://github.com/lebergarrett/dotfiles.git'
+    dest: ~/repos/dotfiles
+    version: master
+
+- name: Ensure ssh dir exists
+  file:
+    path: ~/.ssh
+    state: directory
+    mode: 0755
+
+- name: Move ssh config
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/.ssh/config
+    dest: ~/.ssh/config
+    mode: 0644
+    backup: yes
+
+- name: Move vim config
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/.vimrc
+    dest: ~/.vimrc
+    mode: 0644
+    backup: yes
+
+- name: Move vim plugin config
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/.vimrc.plug
+    dest: ~/.vimrc.plug
+    mode: 0644
+    backup: yes
+
+- name: Move prezto config
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/.zpreztorc
+    dest: ~/.zpreztorc
+    mode: 0644
+    backup: yes
+
+- name: Move zsh config
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/.zshrc
+    dest: ~/.zshrc
+    mode: 0644
+    backup: yes
+
+- name: Ensure config dir exists
+  file:
+    path: ~/.config
+    state: directory
+    mode: 0755
+
+- name: Ensure yabai config dir exists
+  file:
+    path: ~/.config/yabai
+    state: directory
+    mode: 0755
+  when: ansible_os_family == 'Darwin'
+
+- name: Move yabai config
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/yabairc
+    dest: ~/.config/yabai/yabairc
+    mode: 0644
+    backup: yes
+  when: ansible_os_family == 'Darwin'
+
+- name: Move skhd config # Used to configure shortcuts for yabai
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/skhdrc
+    dest: ~/.config/yabai/skhdrc
+    mode: 0644
+    backup: yes
+  when: ansible_os_family == 'Darwin'
+
+- name: Move yabai scripts
+  copy:
+    remote_src: true
+    src: ~/repos/dotfiles/scripts/
+    dest: ~/.config/yabai/scripts
+    mode: 0644
+    backup: yes
+    directory_mode: yes
+  when: ansible_os_family == 'Darwin'
+
+- name: Set up yabai symlink
+  file:
+    src: ~/.config/yabai/yabairc
+    dest: ~/.yabairc
+    mode: 0644
+    state: link
+  when: ansible_os_family == 'Darwin'
+
+- name: Set up skhd symlinks
+  file:
+    src: ~/.config/yabai/skhdrc
+    dest: ~/.skhdrc
+    mode: 0644
+    state: link
+  when: ansible_os_family == 'Darwin'

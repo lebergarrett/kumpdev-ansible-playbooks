@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+
+  roles:
+    - role: geerlingguy.docker
+      vars:
+        docker_users:
+          - lab
+      become: yes
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenas.kumpdev.com:/mnt/Shared/ShareDataSet
+    - role: install-common-packages
+    - role: terraform
+    - role: githubcli
+    - role: git-setup
+      vars:
+        git_user: lebergarrett
+        git_email: lebergarrett@gmail.com
+    - role: lebergarrett.ansible_awscli
+    - role: gcloudsdk
+    - role: prezto
+    - role: kubectl
+    - role: dotfiles
+    - role: vimplug
+    - role: sudoers
+    - role: upgrade
+
+  # TODO
+  # optional vscode?
+  # Auth to services?
+  #   ghcli config + gen and add ssh key
+  # Azure CLI?

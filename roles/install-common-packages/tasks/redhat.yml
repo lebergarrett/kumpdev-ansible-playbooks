@@ -1,0 +1,19 @@
+---
+- name: Install packages
+  dnf:
+    name:
+    - ansible-lint
+    - curl
+    #- fonts-powerline
+    - golang
+    #- nodejs
+    #- npm
+    - python3
+    - python3-pip
+    #- software-properties-common
+    - unzip
+    - vim
+    - yamllint
+    - zsh
+    state: present
+  become: yes

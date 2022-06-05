@@ -1,0 +1,18 @@
+---
+- name: Set up git username
+  community.general.git_config:
+    name: user.name
+    value: "{{ git_user }}"
+    scope: global
+
+- name: Set up git email
+  community.general.git_config:
+    name: user.email
+    value: "{{ git_email }}"
+    scope: global
+
+- name: Ensure repos dir exists
+  file:
+    path: ~/repos
+    state: directory
+    mode: 0755

@@ -1,0 +1,11 @@
+- hosts: nut_clients
+  become: true
+  vars_files:
+    - vault.yml
+  roles:
+    - role: lebergarrett.ansible_nut_client
+      vars:
+        install_nut: true
+        nut_server_group: servers
+        nut_server: rpi.kumpdev.com
+        nut_user: lab

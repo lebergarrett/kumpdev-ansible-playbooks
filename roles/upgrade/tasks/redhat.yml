@@ -1,0 +1,11 @@
+---
+- name: Upgrade dnf packages
+  dnf:
+    name: "*"
+    state: latest
+  become: true
+
+- name: Autoremove unneeded packages installed as dependencies
+  dnf:
+    autoremove: true
+  become: true

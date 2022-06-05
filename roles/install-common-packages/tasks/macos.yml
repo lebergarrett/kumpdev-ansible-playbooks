@@ -1,0 +1,11 @@
+---
+- community.general.homebrew:
+    name:
+    - ansible-lint
+    - golang
+    - node
+    - npm
+    - python
+    - yamllint
+    state: present
+    update_homebrew: yes

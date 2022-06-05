@@ -1,0 +1,27 @@
+---
+- hosts: localhost
+
+  roles:
+    - role: elliotweiser.osx-command-line-tools
+    - role: geerlingguy.mac.homebrew
+    - role: install-common-packages
+    - role: terraform
+    - role: githubcli
+    - role: git-setup
+      vars:
+        git_user: lebergarrett
+        git_email: lebergarrett@gmail.com
+    - role: lebergarrett.ansible_awscli
+    - role: gcloudsdk
+    - role: prezto
+    - role: kubectl
+    - role: dotfiles
+    - role: vimplug
+    - role: sudoers
+    - role: upgrade
+
+  # TODO
+  # optional vscode?
+  # Auth to services?
+  #   ghcli config + gen and add ssh key
+  # Azure CLI?

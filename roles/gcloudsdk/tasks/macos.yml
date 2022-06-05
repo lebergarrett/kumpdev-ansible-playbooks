@@ -1,0 +1,10 @@
+---
+- community.general.homebrew:
+    name: google-cloud-sdk
+    state: present
+    update_homebrew: yes
+  register: gcloud
+  ignore_errors: true
+
+- debug:
+    var: gcloud

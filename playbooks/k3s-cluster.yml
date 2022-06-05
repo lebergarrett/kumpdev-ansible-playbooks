@@ -1,0 +1,55 @@
+---
+- hosts: k3s_cluster
+  vars_files:
+    - vault.yaml
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenas.kumpdev.com:/mnt/Shared/ShareDataSet
+    - role: k3s-prereq
+    - role: k3s-download
+
+- hosts: k3s_server
+  vars_files:
+    - vault.yaml
+  become: true
+  roles:
+    - role: k3s/master
+
+- hosts: k3s_agent
+  vars_files:
+    - vault.yaml
+  become: true
+  roles:
+    - role: k3s/node
+    - role: lebergarrett.ansible_awscli
+  tasks:
+    - name: Create .aws directory
+      ansible.builtin.file:
+        path: /home/lab/.aws
+        state: directory
+        owner: lab
+        group: lab
+        mode: '0755'
+    - name: Place awscli credentials on worker nodes (for s3 backups)
+      copy:
+        content: |
+          [default]
+          aws_access_key_id = {{ aws_access_key_id }}
+          aws_secret_access_key = {{ aws_secret_access_key }}
+        dest: /home/lab/.aws/credentials
+        owner: lab
+        group: lab
+        mode: '0600'
+    - name: Place awscli configuration on worker nodes (for s3 backups)
+      copy:
+        content: |
+          [default]
+          region = us-east-1
+        dest: /home/lab/.aws/config
+        owner: lab
+        group: lab
+        mode: '0600'
