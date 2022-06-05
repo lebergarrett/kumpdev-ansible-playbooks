@@ -1,0 +1,35 @@
+---
+- hosts: qbittorrent
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenas.kumpdev.com:/mnt/Shared/ShareDataSet
+
+  tasks:
+    - name: Install openvpn client
+      apt:
+        name: 
+          - openvpn
+          - openvpn-systemd-resolved
+
+    - name: Configure openvpn client
+      unarchive:
+        src: ../files/openvpn.zip.vault
+        dest: /etc/openvpn/client/
+
+    - name: Start and enable openvpn service
+      service:
+        name: openvpn-client@mullvad_ch_zrh
+        state: started
+        enabled: true
+
+    # - name: Install qbittorrent
+    #   apt:
+    #     name: qbittorrent
+
+    # - name: Configure qbittorrent
+
+    # - name: Start and enable qbittorrent service
