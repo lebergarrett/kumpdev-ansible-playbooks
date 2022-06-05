@@ -10,26 +10,57 @@
 
   tasks:
     - name: Install openvpn client
-      apt:
+      ansible.builtin.apt:
         name: 
           - openvpn
           - openvpn-systemd-resolved
 
     - name: Configure openvpn client
-      unarchive:
+      ansible.builtin.unarchive:
         src: ../files/openvpn.zip.vault
         dest: /etc/openvpn/client/
 
     - name: Start and enable openvpn service
-      service:
+      ansible.builtin.systemd:
         name: openvpn-client@mullvad_ch_zrh
         state: started
         enabled: true
 
-    # - name: Install qbittorrent
-    #   apt:
-    #     name: qbittorrent
+    - name: Install qbittorrent-nox
+      ansible.builtin.apt:
+        name: qbittorrent-nox
+    
+    - name: Add qbittorrent-nox group
+      ansible.builtin.group:
+        name: qbittorrent-nox
+        state: present
 
-    # - name: Configure qbittorrent
+    - name: Add qbittorrent-nox user
+      ansible.builtin.user:
+        name: qbittorrent-nox
+        group: qbittorrent-nox
+        system: yes
 
-    # - name: Start and enable qbittorrent service
+    - name: Create systemd service file for qbittorrent-nox
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=qBittorrent Command Line Client
+          After=network.target
+          [Service]
+          Type=forking
+          User=qbittorrent-nox
+          Group=qbittorrent-nox
+          UMask=007
+          ExecStart=/usr/bin/qbittorrent-nox -d --webui-port=8080
+          Restart=on-failure
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/qbittorrent-nox.service
+
+    - name: Start and enable qbittorrent service
+      ansible.builtin.systemd:
+        name: qbittorrent-nox.service
+        daemon_reload: yes
+        state: started
+        enabled: yes
