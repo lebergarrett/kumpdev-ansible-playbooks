@@ -4,7 +4,7 @@
   roles:
     - role: lebergarrett.ansible_nfs_client
       vars:
-        sharedrive_location: truenas.kumpdev.com:/mnt/Shared/ShareDataSet
+        sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
     - role: install-common-packages
     - role: git-setup
       vars:

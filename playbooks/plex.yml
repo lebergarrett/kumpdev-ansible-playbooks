@@ -4,6 +4,8 @@
   roles:
     - role: lebergarrett.ansible_common_debian
     - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
     - role: upgrade.yml
   
   tasks:
