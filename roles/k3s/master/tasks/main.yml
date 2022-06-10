@@ -19,7 +19,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+  when: ansible_host == hostvars[groups['k3s_server'][0]]['ansible_host'] | default(groups['k3s_server'][0])
 
 - name: Copy vip rbac manifest to first master
   ansible.builtin.template:
@@ -28,7 +28,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+  when: ansible_host == hostvars[groups['k3s_server'][0]]['ansible_host'] | default(groups['k3s_server'][0])
 
 - name: Copy vip manifest to first master
   ansible.builtin.template:
@@ -37,7 +37,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+  when: ansible_host == hostvars[groups['k3s_server'][0]]['ansible_host'] | default(groups['k3s_server'][0])
 
 - name: Copy metallb namespace manifest to first master
   ansible.builtin.template:
@@ -46,7 +46,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+  when: ansible_host == hostvars[groups['k3s_server'][0]]['ansible_host'] | default(groups['k3s_server'][0])
 
 - name: Copy metallb ConfigMap manifest to first master
   ansible.builtin.template:
@@ -55,7 +55,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+  when: ansible_host == hostvars[groups['k3s_server'][0]]['ansible_host'] | default(groups['k3s_server'][0])
 
 - name: Copy metallb main manifest to first master
   ansible.builtin.template:
@@ -64,7 +64,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+  when: ansible_host == hostvars[groups['k3s_server'][0]]['ansible_host'] | default(groups['k3s_server'][0])
 
 - name: Init cluster inside the transient k3s-init service
   ansible.builtin.command:
@@ -82,7 +82,7 @@
       ansible.builtin.command:
         cmd: k3s kubectl get nodes -l "node-role.kubernetes.io/master=true" -o=jsonpath="{.items[*].metadata.name}"
       register: nodes
-      until: nodes.rc == 0 and (nodes.stdout.split() | length) == (groups['master'] | length)
+      until: nodes.rc == 0 and (nodes.stdout.split() | length) == (groups['k3s_server'] | length)
       retries: "{{ retry_count | default(20) }}"
       delay: 10
       changed_when: false
