@@ -2,11 +2,14 @@
 - hosts: dockerhost
   gather_facts: true
   become: true
+  # vars_files:
+  #   - ../vault.yaml
   roles:
     - role: lebergarrett.ansible_common_debian
     - role: lebergarrett.ansible_nfs_client
       vars:
         sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
+    - role: lebergarrett.ansible_awscli
     - role: geerlingguy.docker
       vars:
         docker_install_compose: true

@@ -1,0 +1,104 @@
+# Ansible managed
+---
+version: "2"
+services:
+  luckperms-mariadb:
+    image: mariadb
+    container_name: luckperms-mariadb
+    volumes:
+      - ./data/luckperms-mariadb/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD={{ mysql_root_password }}
+      - MYSQL_DATABASE=luckperms
+      - MYSQL_USER={{ mysql_user }}
+      - MYSQL_PASSWORD={{ mysql_password }}
+    restart: unless-stopped
+  mc-velocity-proxy:
+    image: imkumpy/waterfall-mc:main
+    container_name: mc-velocity-proxy
+    volumes:
+      - ./data/mc-velocity-proxy:/server
+    ports:
+      - 25565:25577
+    environment:
+      - TYPE=VELOCITY
+    depends_on:
+      - fabric
+      - creative
+      - fabric-creative
+    restart: unless-stopped
+  fabric:
+    image: imkumpy/fabric-mc:main
+    container_name: fabric
+    volumes:
+      - ./data/fabric:/data
+    environment:
+      - DIFFICULTY=hard
+      - ENFORCE_WHITELIST=true
+      - EULA=true
+      - LEVEL=1_11 Kumpback
+      - MAX_WORLD_SIZE=18000
+      - MEMORY=4G
+      - ONLINE_MODE=false
+      - OPS=Kumpy,Fett32
+      - OVERRIDE_SERVER_PROPERTIES=true
+      - PLUGINS_SYNC_UPDATE=false
+      - PVP=true
+      - REMOVE_OLD_MODS=true
+      - SPAWN_PROTECTION=0
+      - TYPE=FABRIC
+      - USE_AIKAR_FLAGS=true
+      - VERSION=1.18.2
+      - VIEW_DISTANCE=10
+    restart: unless-stopped
+  creative:
+    image: imkumpy/paper-mc:main
+    container_name: creative
+    volumes:
+      - ./data/creative:/data
+    environment:
+      - DIFFICULTY=peaceful
+      - ENFORCE_WHITELIST=true
+      - EULA=true
+      - FORCE_GAMEMODE=true
+      - LEVEL=CreativeWorld
+      - MAX_WORLD_SIZE=1000
+      - MEMORY=1G
+      - MODE=creative
+      - ONLINE_MODE=false
+      - OPS=Kumpy,Fett32
+      - OVERRIDE_SERVER_PROPERTIES=true
+      - PLUGINS_SYNC_UPDATE=false
+      - PVP=false
+      - SERVER_NAME=creative
+      - SPAWN_PROTECTION=0
+      - TYPE=PAPER
+      - USE_AIKAR_FLAGS=true
+      - VERSION=1.18.2
+    restart: unless-stopped
+  fabric-creative:
+    image: imkumpy/fabric-mc:main
+    container_name: fabric-creative
+    volumes:
+      - ./data/fabric-creative:/data
+    environment:
+      - DIFFICULTY=peaceful
+      - ENFORCE_WHITELIST=true
+      - EULA=true
+      - FORCE_GAMEMODE=true
+      - LEVEL=CreativeWorld
+      - LEVEL_TYPE=FLAT
+      - MAX_WORLD_SIZE=1000
+      - MEMORY=1G
+      - MODE=creative
+      - ONLINE_MODE=false
+      - OPS=Kumpy,Fett32
+      - OVERRIDE_SERVER_PROPERTIES=true
+      - PLUGINS_SYNC_UPDATE=false
+      - PVP=false
+      - REMOVE_OLD_MODS=true
+      - SPAWN_PROTECTION=0
+      - TYPE=FABRIC
+      - USE_AIKAR_FLAGS=true
+      - VERSION=1.18.2
+    restart: unless-stopped
