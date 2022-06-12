@@ -16,44 +16,44 @@
         docker_users:
           - lab
 
-  tasks:
-    - name: Install pip3
-      apt:
-        name: python3-pip
-        state: present
+  # tasks:
+  #   - name: Install pip3
+  #     apt:
+  #       name: python3-pip
+  #       state: present
 
-    - name: install certain python modules for docker
-      pip:
-        name: docker
-        version: "5.0.3"
-        state: present
+  #   - name: install certain python modules for docker
+  #     pip:
+  #       name: docker
+  #       version: "5.0.3"
+  #       state: present
 
-    - name: Create the docker network for traefik
-      community.general.docker_network:
-        name: web
-      vars:
-        ansible_python_interpreter: /bin/python3
+  #   - name: Create the docker network for traefik
+  #     community.general.docker_network:
+  #       name: web
+  #     vars:
+  #       ansible_python_interpreter: /bin/python3
 
-    - name: Create the directory for treafik config
-      ansible.builtin.file:
-        path: /opt/traefik
-        state: directory
-        mode: '0755'
+  #   - name: Create the directory for traefik config
+  #     ansible.builtin.file:
+  #       path: /opt/traefik
+  #       state: directory
+  #       mode: '0755'
     
-    - name: Create the docker-compose file for traefik
-      ansible.builtin.copy:
-        src: files/docker-compose.yml
-        dest: /opt/traefik/docker-compose.yml
-        mode: 0644
+  #   - name: Create the docker-compose file for traefik
+  #     ansible.builtin.copy:
+  #       src: files/docker-compose.yml
+  #       dest: /opt/traefik/docker-compose.yml
+  #       mode: 0644
 
-    - name: Copy traefik config file
-      ansible.builtin.copy:
-        src: files/traefik.toml
-        dest: /opt/traefik/traefik.toml
-        mode: 0644
+  #   - name: Copy traefik config file
+  #     ansible.builtin.copy:
+  #       src: files/traefik.toml
+  #       dest: /opt/traefik/traefik.toml
+  #       mode: 0644
     
-    - name: Touch acme file and set perms
-      ansible.builtin.file:
-        path: /opt/traefik/acme.json
-        state: file
-        mode: 0600
+  #   - name: Touch acme file and set perms
+  #     ansible.builtin.file:
+  #       path: /opt/traefik/acme.json
+  #       state: file
+  #       mode: 0600

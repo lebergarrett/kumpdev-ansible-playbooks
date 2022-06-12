@@ -1,0 +1,21 @@
+---
+- hosts: dockerhost
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../vault.yaml
+
+  tasks:
+    - name: Create the prod-mc directory
+      ansible.builtin.file:
+        path: ~/prod-mc
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy over prod-mc docker-compose file
+      ansible.builtin.copy:
+        src: ../files/prod-mc/docker-compose.yml
+        dest: ~/prod-mc
+        state: present
