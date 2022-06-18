@@ -11,8 +11,13 @@
       - python-pip
       - yamllint
       - zsh
+      # gnome-extra
     state: present
   become: yes
 
 # Install packages using yay
 # powerline-fonts
+# github-cli
+# vscode
+# discord
+# chrome-gnome-shell

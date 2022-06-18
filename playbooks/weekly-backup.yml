@@ -1,0 +1,25 @@
+---
+- hosts: weekly_backup
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
+
+  tasks:
+    # Mount HDD
+    - name: Copy over backup script
+      ansible.builtin.copy:
+        src: ../files/weekly-backup/backup.sh
+        dest: /home/lab/backup.sh
+        owner: lab
+        group: lab
+        mode: '744'
+
+    - name: Runs the backup script on boot
+      ansible.builtin.cron:
+        name: "Take a backup of truenas NFS share"
+        special_time: reboot
+        job: "/home/lab/backup.sh"

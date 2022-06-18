@@ -5,13 +5,13 @@
     - role: lebergarrett.ansible_nfs_client
       vars:
         sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
-    - role: install-common-packages
-    - role: git-setup
+    - role: ../../roles/install-common-packages
+    - role: ../../roles/git-setup
       vars:
         git_user: lebergarrett
         git_email: lebergarrett@gmail.com
-    - role: prezto
-    - role: dotfiles
-    - role: vimplug
-    - role: sudoers
-    - role: upgrade
+    - role: ../../roles/prezto
+    - role: ../../roles/dotfiles
+    - role: ../../roles/vimplug
+    - role: ../../roles/sudoers
+    - role: ../../roles/upgrade
