@@ -9,7 +9,20 @@
         sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
 
   tasks:
-    # Mount HDD
+    - name: Create /mnt/hdd mountpoint
+      ansible.builtin.file:
+        path: /mnt/hdd
+        state: directory
+        mode: '0777'
+
+    - name: Mount up hdd by label
+      ansible.posix.mount:
+        path: /mnt/hdd
+        src: LABEL=backup
+        opts: rw,users,umask=000
+        fstype: vfat
+        state: present
+
     - name: Copy over backup script
       ansible.builtin.copy:
         src: ../files/weekly-backup/backup.sh
