@@ -1,0 +1,33 @@
+---
+- hosts: dockerhost-grafana-loki.kumpdev.com
+  gather_facts: true
+  become: true
+
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
+    - role: lebergarrett.ansible_awscli
+    - role: geerlingguy.docker
+      vars:
+        docker_install_compose: true
+        docker_users:
+          - lab
+
+  tasks:
+    - name: Create the grafana-loki directory
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/grafana-loki"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy over grafana-loki docker-compose file
+      ansible.builtin.copy:
+        src: ../files/grafana-loki/docker-compose.yml
+        dest: "/home/{{ ansible_user }}/grafana-loki"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"

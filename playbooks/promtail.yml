@@ -1,0 +1,29 @@
+---
+- hosts: dockerhost
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Create the promtail directory
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/promtail"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy over promtail docker-compose file
+      ansible.builtin.copy:
+        src: ../files/promtail/docker-compose.yml
+        dest: "/home/{{ ansible_user }}/promtail"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"
+
+    - name: Copy over promtail config file
+      ansible.builtin.copy:
+        src: ../files/promtail/promtail-config.yml
+        dest: "/home/{{ ansible_user }}/promtail"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"

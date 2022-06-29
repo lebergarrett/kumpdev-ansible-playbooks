@@ -4,6 +4,7 @@
   become: true
   # vars_files:
   #   - ../vault.yaml
+
   roles:
     - role: lebergarrett.ansible_common_debian
     - role: lebergarrett.ansible_nfs_client
@@ -16,7 +17,27 @@
         docker_users:
           - lab
 
-  # tasks:
+  tasks:
+    - name: Install loki log driver
+      ansible.builtin.command: docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+      ignore_errors: true
+
+    - name: Setup loki as default log driver
+      ansible.builtin.copy:
+        content: |
+          {
+            "debug": true,
+            "log-driver": "loki",
+            "log-opts": {
+              "loki-url": "http://loki.kumpdev.com:3100/loki/api/v1/push"
+            }
+          }
+        dest: "/etc/docker/daemon.json"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: restart docker
+
   #   - name: Install pip3
   #     apt:
   #       name: python3-pip

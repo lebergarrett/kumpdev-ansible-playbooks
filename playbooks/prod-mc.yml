@@ -8,7 +8,7 @@
   tasks:
     - name: Create the prod-mc directory
       ansible.builtin.file:
-        path: ~/prod-mc
+        path: "/home/{{ ansible_user }}/prod-mc"
         state: directory
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
@@ -17,5 +17,7 @@
     - name: Copy over prod-mc docker-compose file
       ansible.builtin.copy:
         src: ../files/prod-mc/docker-compose.yml
-        dest: ~/prod-mc
-        state: present
+        dest: "/home/{{ ansible_user }}/prod-mc"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"

@@ -1,0 +1,20 @@
+---
+- hosts: pihole
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+
+  tasks:
+    - name: Download pihole installer
+      ansible.builtin.get_url:
+        url: https://install.pi-hole.net
+        dest: /home/lab/basic-install.sh
+        owner: 'lab'
+        group: 'lab'
+        mode: '0744'
+    
+    # - name: Run basic install script
+    #   ansible.builtin.shell: /home/lab/basic-install.sh
+    #   args:
+    #     creates: /the/created/file.txt
