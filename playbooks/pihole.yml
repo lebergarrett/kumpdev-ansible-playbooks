@@ -2,6 +2,8 @@
 - hosts: pihole
   gather_facts: true
   become: true
+  vars_files:
+    - ../vault.yaml
   roles:
     - role: lebergarrett.ansible_common_debian
 
@@ -12,9 +14,82 @@
         dest: /home/lab/basic-install.sh
         owner: 'lab'
         group: 'lab'
-        mode: '0744'
+        mode: 0744
+
+    - name: Create /etc/pihole directory
+      ansible.builtin.file:
+        path: /etc/pihole
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Place pihole setupVars.conf on host
+      ansible.builtin.template:
+        src: ../templates/pihole/setupVars.conf.j2
+        dest: /etc/pihole/setupVars.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Run basic install script
+      ansible.builtin.shell: /home/lab/basic-install.sh --unattended
+      args:
+        creates: /usr/local/bin/pihole
     
-    # - name: Run basic install script
-    #   ansible.builtin.shell: /home/lab/basic-install.sh
-    #   args:
-    #     creates: /the/created/file.txt
+    - name: Install dependencies for Gravity-Sync
+      ansible.builtin.apt:
+        pkg:
+          - sqlite3
+          - sudo
+          - git
+          - rsync
+        state: present
+        update_cache: true
+      
+    - name: Add service account
+      ansible.builtin.user:
+        name: pi
+        comment: Service account for Gravity-Sync
+        groups: sudo
+        shell: /bin/bash
+    
+    - name: Create .ssh directory in pi's home
+      ansible.builtin.file:
+        path: /home/pi/.ssh
+        state: directory
+        owner: pi
+        group: pi
+        mode: 0700
+    
+    - name: Copy private key into pi's ssh config
+      ansible.builtin.copy:
+        content: "{{ pihole_ssh_private_key }}"
+        dest: /home/pi/.ssh/id_rsa
+        owner: pi
+        group: pi
+        mode: 0600
+
+    - name: Place ssh pubkey in pi's authorized_keys
+      ansible.builtin.copy:
+        content: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTXkT3AAh2jgIBrAIhYg3NYm4360ckjJOTfeTB1Ukq+got32f3P3pCT8LGLzS5SLzGbovsBDAS4sx3Xxt1ml+foqsDJw5u+IBRtuS8giem99NWig52KDm+jme7H9QWJFFyo7PWZbevGf9a9oeoCcaFQ8VdEZnZPjdbBJBxwmrEmRN66CrUUBu0B0wSe1PQqM7jBEvKE+r1oFsH9nQmaeRbOHaLTljJd8mJ3J03w3tq/1t9PWShHoog21jbjlE5Ns2azUriquyOHJ9n25/Q70WqB7I+ahb/M84BYhE3GaQaKLiRxdZVCGHCA420JnbYFXG4knV6meXtmS6Urhm2xF/p'
+        dest: /home/pi/.ssh/authorized_keys
+        owner: pi
+        group: pi
+        mode: 0600
+
+    - name: Update sudoers so pi doesn't require password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^pi ALL='
+        line: 'pi ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+    
+    # https://github.com/vmstan/gravity-sync/wiki/Installing
+    # Remaining steps are to be executed manually by following guide above
+    # Note that you should set a password for the service account prior to running install script using
+    # `sudo passwd pi`
+    # And you will want to update the gravity-sync config file to include cname records
+    # sudo vim /etc/gravity-sync/gravity-sync.conf
+    # INCLUDE_CNAME='1'
