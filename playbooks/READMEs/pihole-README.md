@@ -1,5 +1,7 @@
 # pihole -- Setup redundant pihole servers
 
+https://davidshomelab.com/pi-hole-failover-with-keepalived/
+
 There are some manual steps that need to be performed here as I have not fully automated the process yet.
 
 ```
@@ -14,11 +16,14 @@ For this service account, you will need to set a password for it
 
 ```
 sudo passwd pi
-```
+sudo su - pi
+curl -sSL https://gravity.vmstan.com | bash
+    Remote IP: <Peer IP>
+    User: pi
+    
+<once last step is done on both hosts, run from first (primary)>
+gravity-sync push
 
-And you will want to update the gravity-sync config file to include cname records
-
-```
-sudo vim /etc/gravity-sync/gravity-sync.conf
-INCLUDE_CNAME='1'
+<on both hosts>
+gravity-sync auto
 ```

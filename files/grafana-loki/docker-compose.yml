@@ -15,6 +15,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - loki
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
@@ -25,3 +26,4 @@ services:
       - "3000:3000"
     networks:
       - loki
+    restart: unless-stopped

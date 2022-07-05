@@ -79,7 +79,7 @@
         mode: 0600
 
     - name: Update sudoers so pi doesn't require password
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/sudoers
         state: present
         regexp: '^pi ALL='
@@ -87,9 +87,89 @@
         validate: '/usr/sbin/visudo -cf %s'
     
     # https://github.com/vmstan/gravity-sync/wiki/Installing
-    # Remaining steps are to be executed manually by following guide above
+    # Steps are to be executed manually by following guide above
     # Note that you should set a password for the service account prior to running install script using
     # `sudo passwd pi`
     # And you will want to update the gravity-sync config file to include cname records
     # sudo vim /etc/gravity-sync/gravity-sync.conf
     # INCLUDE_CNAME='1'
+
+    - name: Install IP failover dependencies
+      ansible.builtin.apt:
+        pkg:
+          - keepalived
+          #- libipset13
+        state: present
+        update_cache: true
+
+    - name: Create /etc/scripts directory
+      ansible.builtin.file:
+        path: /etc/scripts
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Place pihole-FTL monitor script on hosts
+      ansible.builtin.template:
+        src: ../files/pihole/chk_ftl
+        dest: /etc/scripts/chk_ftl
+        owner: root
+        group: root
+        mode: 0744
+
+- hosts: 192.168.0.51
+  become: true
+  vars_files:
+    - ../vault.yaml
+  vars:
+    peer_ip: 192.168.0.52
+    virtual_ip: 192.168.0.50
+  tasks:
+    - name: Place keepalived config file on host
+      ansible.builtin.template:
+        src: ../templates/pihole/keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart keepalived
+
+    - name: Start and enable keepalived service
+      ansible.builtin.service:
+        name: keepalived
+        state: started
+        enabled: true
+  handlers:
+    - name: restart keepalived
+      ansible.builtin.service:
+        name: keepalived
+        state: restarted
+
+- hosts: 192.168.0.52
+  become: true
+  vars_files:
+    - ../vault.yaml
+  vars:
+    peer_ip: 192.168.0.51
+    virtual_ip: 192.168.0.50
+  tasks:
+    - name: Place keepalived config file on host
+      ansible.builtin.template:
+        src: ../templates/pihole/keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart keepalived
+
+    - name: Start and enable keepalived service
+      ansible.builtin.service:
+        name: keepalived
+        state: started
+        enabled: true
+  handlers:
+    - name: restart keepalived
+      ansible.builtin.service:
+        name: keepalived
+        state: restarted

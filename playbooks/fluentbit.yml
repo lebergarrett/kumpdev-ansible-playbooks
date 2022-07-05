@@ -4,26 +4,26 @@
   become: true
 
   tasks:
-    - name: Create the promtail directory
+    - name: Create the fluentbit directory
       ansible.builtin.file:
-        path: "/home/{{ ansible_user }}/promtail"
+        path: "/home/{{ ansible_user }}/fluentbit"
         state: directory
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: "0755"
 
-    - name: Copy over promtail docker-compose file
+    - name: Copy over fluentbit docker-compose file
       ansible.builtin.copy:
-        src: ../files/promtail/docker-compose.yml
-        dest: "/home/{{ ansible_user }}/promtail"
+        src: ../files/fluentbit/docker-compose.yml
+        dest: "/home/{{ ansible_user }}/fluentbit"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: "0644"
 
-    - name: Copy over promtail config file
+    - name: Copy over fluentbit config file
       ansible.builtin.copy:
-        src: ../files/promtail/promtail-config.yml
-        dest: "/home/{{ ansible_user }}/promtail"
+        src: ../files/fluentbit/fluent-bit.conf
+        dest: "/home/{{ ansible_user }}/fluentbit"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: "0644"

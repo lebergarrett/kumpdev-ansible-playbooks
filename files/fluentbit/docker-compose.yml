@@ -1,0 +1,21 @@
+---
+version: "3.7"
+
+services:
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:latest
+    container_name: fluent-bit
+    environment:
+      - LOKI_URL=http://192.168.0.70:3100/loki/api/v1/push
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      - public
+    restart: unless-stopped
+
+networks:
+  public:
+    name: public
