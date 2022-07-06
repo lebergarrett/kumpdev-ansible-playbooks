@@ -1,0 +1,10 @@
+---
+- hosts: vpn_server
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: kyl191.openvpn
+      openvpn_port: 1194 # default
+      # clients:
+      #   - client1
