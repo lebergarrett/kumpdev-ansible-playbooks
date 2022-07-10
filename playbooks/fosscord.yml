@@ -1,0 +1,11 @@
+---
+- hosts: fosscord
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+    - role: geerlingguy.docker
+      vars:
+        docker_install_compose: true
+        docker_users:
+          - lab
