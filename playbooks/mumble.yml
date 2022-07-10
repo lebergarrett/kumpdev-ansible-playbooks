@@ -1,0 +1,13 @@
+---
+- hosts: mumble
+  gather_facts: true
+  become: true
+  roles:
+    - role: lebergarrett.ansible_common_debian
+  
+  tasks:
+    - name: Install mumble-server
+      ansible.builtin.apt:
+        name: mumble-server
+        state: present
+        update_cache: true
