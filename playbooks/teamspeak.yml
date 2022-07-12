@@ -1,0 +1,32 @@
+---
+- hosts: teamspeak
+  gather_facts: true
+  become: true
+  vars_files:
+    - ../vault.yaml
+
+  roles:
+    - role: lebergarrett.ansible_common_debian
+
+    - role: geerlingguy.docker
+      vars:
+        docker_install_compose: true
+        docker_users:
+          - lab
+  
+  tasks:
+    - name: Create the teamspeak directory
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/teamspeak"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Copy over teamspeak docker-compose file
+      ansible.builtin.copy:
+        src: ../files/teamspeak/docker-compose.yml
+        dest: "/home/{{ ansible_user }}/teamspeak"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"
