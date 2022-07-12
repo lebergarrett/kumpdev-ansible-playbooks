@@ -4,6 +4,28 @@
   become: true
   roles:
     - role: lebergarrett.ansible_common_debian
+  vars_files:
+    - ../vault.yaml
+  vars:
+    domain: 'mumble.kumpdev.com'
+    mumble_server_config:
+      bandwidth: '144000'
+      sslCert: '/etc/ssl/{{ domain }}.crt'
+      sslKey: '/etc/ssl/{{ domain }}.key'
+      welcometext: '<br />Welcome to <b>Lil D Squad</b>.<br />Tic Tac looking ass<br />'
+    getssl_defaults:
+      RELOAD_CMD: 'systemctl restart mumble-server'
+      SERVER_TYPE: '64738'
+      VALIDATE_VIA_DNS: 'true'
+      DNS_ADD_COMMAND: '/usr/share/getssl/dns_scripts/dns_add_cloudflare'
+      DNS_DEL_COMMAND: '/usr/share/getssl/dns_scripts/dns_del_cloudflare'
+      PUBLIC_DNS_SERVER: '1.1.1.1'
+      AUTH_DNS_SERVER: 'coen.ns.cloudflare.com'
+    getssl_domain_config:
+      CA: 'https://acme-v02.api.letsencrypt.org' #'https://acme-staging-v02.api.letsencrypt.org'
+      SANS: ''
+      DOMAIN_CERT_LOCATION: "/etc/ssl/{{ domain }}.crt"
+      DOMAIN_KEY_LOCATION: "/etc/ssl/{{ domain }}.key"
   
   tasks:
     - name: Install mumble-server
@@ -11,3 +33,131 @@
         name: mumble-server
         state: present
         update_cache: true
+
+    - name: Configure mumble-server
+      ansible.builtin.lineinfile:
+        path: /etc/mumble-server.ini
+        regexp: '{{ item.key }}'
+        line: '{{ item.key }}="{{ item.value }}"'
+        owner: root
+        group: mumble-server
+        mode: '0640'
+      loop: "{{ lookup('ansible.builtin.dict', mumble_server_config) }}"
+      notify: restart mumble-server
+
+    - name: Install getssl for LetsEncrypt certificate setup and automated renewal
+      ansible.builtin.shell: 'curl --silent https://raw.githubusercontent.com/srvrco/getssl/latest/getssl > getssl ; chmod 700 getssl'
+      args:
+        chdir: /srv/
+        creates: /srv/getssl
+
+    - name: Create /usr/share/getssl directory
+      ansible.builtin.file:
+        path: /usr/share/getssl
+        state: directory
+        owner: root
+        group: mumble-server
+        mode: '0755'
+
+    - name: Create /usr/share/getssl/dns_scripts/ directory
+      ansible.builtin.file:
+        path: /usr/share/getssl/dns_scripts
+        state: directory
+        owner: root
+        group: mumble-server
+        mode: '0755'
+
+    - name: Copy dns_add_cloudflare script
+      ansible.builtin.copy:
+        src: ../files/mumble/dns_add_cloudflare
+        dest: /usr/share/getssl/dns_scripts/dns_add_cloudflare
+        owner: root
+        group: mumble-server
+        mode: '0755'
+
+    - name: Copy dns_del_cloudflare script
+      ansible.builtin.copy:
+        src: ../files/mumble/dns_del_cloudflare
+        dest: /usr/share/getssl/dns_scripts/dns_del_cloudflare
+        owner: root
+        group: mumble-server
+        mode: '0755'
+    
+    - name: Set ownership of getssl script
+      ansible.builtin.file:
+        path: /srv/getssl
+        owner: root
+        group: mumble-server
+        mode: '0700'
+
+    - name: Generate getssl config files
+      ansible.builtin.shell: './getssl -c {{ domain }}'
+      args:
+        chdir: /srv/
+        creates: /root/.getssl/
+
+    - name: Configure getssl defaults
+      ansible.builtin.lineinfile:
+        path: /root/.getssl/getssl.cfg
+        regexp: '^{{ item.key }}'
+        line: '{{ item.key }}="{{ item.value }}"'
+        owner: root
+        group: mumble-server
+        mode: '0640'
+      loop: "{{ lookup('ansible.builtin.dict', getssl_defaults) }}"
+
+    - name: Export cloudflare env vars in getssl default config
+      ansible.builtin.lineinfile:
+        path: /root/.getssl/getssl.cfg
+        regexp: '^{{ item }}'
+        line: '{{ item }}'
+        owner: root
+        group: mumble-server
+        mode: '0640'
+      loop:
+        - 'export CF_API_TOKEN="{{ mumble_cf_api_token }}"'
+        - 'export CF_ZONE_ID="{{ mumble_cf_zone_id }}"'
+      no_log: true # prevent leaking secrets in playbook output
+
+    - name: 'Configure getssl for {{ domain }}'
+      ansible.builtin.lineinfile:
+        path: '/root/.getssl/{{ domain }}/getssl.cfg'
+        regexp: '^{{ item.key }}'
+        line: '{{ item.key }}="{{ item.value }}"'
+        owner: root
+        group: mumble-server
+        mode: '0640'
+      loop: "{{ lookup('ansible.builtin.dict', getssl_domain_config) }}"
+    
+    - name: Touch ssl cert and key and set permissions
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: touch
+        owner: root
+        group: mumble-server
+        mode: '0640'
+      loop:
+        - '{{ mumble_server_config.sslCert }}'
+        - '{{ mumble_server_config.sslKey }}'
+
+    - name: Run getssl to generate initial certificate
+      ansible.builtin.shell: './getssl {{ domain }}'
+      args:
+        chdir: /srv/
+        creates: /etc/ssl/{{ domain }}/{{ domain }}.crt
+      notify: restart mumble-server
+
+    # https://github.com/srvrco/getssl#automating-updates
+    - name: Create the cron entry to run getssl daily
+      ansible.builtin.cron:
+        name: 'renew {{ domain }} ssl certificate'
+        minute: '23'
+        hour: '5'
+        job: '/root/getssl -u -a -q'
+
+
+  handlers:
+    - name: restart mumble-server
+      ansible.builtin.service:
+        name: mumble-server
+        state: restarted
