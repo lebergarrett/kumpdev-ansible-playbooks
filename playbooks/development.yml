@@ -1,0 +1,35 @@
+---
+- hosts: development
+
+  roles:
+    - role: lebergarrett.ansible_common_debian
+      become: true
+    - role: geerlingguy.docker
+      vars:
+        docker_users:
+          - lab
+      become: true
+    - role: lebergarrett.ansible_nfs_client
+      vars:
+        sharedrive_location: truenasv2.kumpdev.com:/mnt/Primary/nfs
+    - role: ../roles/install-common-packages
+    - role: ../roles/terraform
+    - role: ../roles/githubcli
+    - role: ../roles/git-setup
+      vars:
+        git_user: lebergarrett
+        git_email: lebergarrett@gmail.com
+    - role: lebergarrett.ansible_awscli
+    - role: ../roles/gcloudsdk
+    - role: ../roles/prezto
+    - role: ../roles/kubectl
+    - role: ../roles/dotfiles
+    - role: ../roles/vimplug
+    - role: ../roles/sudoers
+    - role: ../roles/upgrade
+
+  # TODO
+  # optional vscode?
+  # Auth to services?
+  #   ghcli config + gen and add ssh key
+  # Azure CLI?
