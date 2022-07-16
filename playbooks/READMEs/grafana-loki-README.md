@@ -1,6 +1,6 @@
 # grafana loki server setup using docker
 
-Run the `grafana-loki.yml` playbook against the host like so to set up docker on it
+Run the `grafana-loki.yml` playbook against the host
 
 ```
 ansible-playbook -i inventory/hosts.ini playbooks/grafana-loki.yml
