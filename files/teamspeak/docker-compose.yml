@@ -2,24 +2,30 @@ version: '3.1'
 services:
   teamspeak:
     image: teamspeak
+    container_name: teamspeak
     restart: always
     ports:
       - 9987:9987/udp
+      - 10011:10011
       - 30033:30033
     environment:
       TS3SERVER_DB_PLUGIN: ts3db_mariadb
       TS3SERVER_DB_SQLCREATEPATH: create_mariadb
-      TS3SERVER_DB_HOST: db
+      TS3SERVER_DB_HOST: teamspeak-mariadb
       TS3SERVER_DB_USER: root
       TS3SERVER_DB_PASSWORD: '{{ mysql_password }}'
       TS3SERVER_DB_NAME: teamspeak
       TS3SERVER_DB_WAITUNTILREADY: 30
       TS3SERVER_LICENSE: accept
     restart: unless-stopped
-  db:
+  teamspeak-mariadb:
     image: mariadb
+    container_name: teamspeak-mariadb
     restart: always
+    user: 1000:1000
     environment:
       MYSQL_ROOT_PASSWORD: '{{ mysql_password }}'
       MYSQL_DATABASE: teamspeak
+    volumes:
+      - ./mariadb/mysql:/var/lib/mysql
     restart: unless-stopped
